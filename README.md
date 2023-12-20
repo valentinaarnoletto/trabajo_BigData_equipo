@@ -8,7 +8,7 @@ Repo utilizado para elaborar el trabajo en equipo para la asignatura "Programaci
 
 
 <!-- En la linea de abajo HAS de SUSTITUIR "perezp44" por tu usuario de Github-->
-La versión final del trabajo puede visualizarse en: <https://valenarnoletto.github.io/trabajo_BigData_equipo/>. 
+La versión final del trabajo puede visualizarse en: <https://valentinaarnoletto.github.io/trabajo_BigData_equipo/>. 
 
 
 <!-- Abajo podéis escribir lo que queráis, igual un resumen del trabajo, o ..., o ... pero al menos, tenéis que poner el título del trabajo y el nombre de los componentes del equipo-->
