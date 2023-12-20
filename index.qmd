@@ -1,0 +1,30 @@
+---
+title: "EL FUTURO DE LOS JÓVENES"           
+image: imagenes/my_foto.jpeg      #- poned una foto vuestra
+about:
+  template: trestles        #- {jolla, solana, ...}
+  image-width: 16em         #- https://cybmeta.com/em-y-rem
+  image-shape: rectangle    #- {rectangle, round, rounded}
+  links:
+    - icon: envelope
+      text: e-mail Valentina
+      url: "mailto:var@alumni.uv.es"            
+    - icon: linkedin
+      text: LinkedIn Valentina
+      href: https://linkedin.com/in/valentina-arnoletto-7b9790163    
+    - icon: github
+      text: Github Valentina
+      href: https://github.com/valentinaarnoletto         
+---
+        
+¡Hola! Somos Valentina Arnoletto, Natalia García, Nerea Escribano y Ana Royo. Somos estudiantes del Grado de Economía en la Universidad de Valencia.
+
+Esta web sirve para presentar el trabajo en equipo para la asignatura "Programación y manejo de datos en la era Del Big Data", optativa de GECO en la Facultad de Economía de la Universitat de València.
+
+La web de la asignatura está [aquí](https://perezp44.github.io/intro-ds-23-24-web/){target="_blank"} y los trabajos de mis compañeros de curso puedes verlos [aquí](https://perezp44.github.io/intro-ds-23-24-web/05-trabajos-estudiantes.html){target="_blank"}.
+
+
+Nuestro trabajo lleva por título : "El futuro de los jóvenes". El objetivo es realizar un análisis económico acerca del futuro próximo de los jóvenes en España, a través del estudio de distintas variables.
+
+
+El trabajo puede verse [aquí](my_trabajo_BigData.html), y las slides [aquí](my_slides_BigData.html){target="_blank"}.
