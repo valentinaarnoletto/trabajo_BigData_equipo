@@ -1,0 +1,802 @@
+---
+title: "El futuro de los jóvenes"
+date: 2023-12-20 #- ISO8601 YYYY-MM-DD format 
+date-format: short
+author: "Arnoletto Valentina Julieta, García Gómez Natalia, Escribano Soria Nerea, Royo Sánchez Ana"
+format: 
+  revealjs:
+    scrollable: true
+    slide-level: 2
+    height: 900
+    width: 1600
+    toc: false
+    center-title-slide: true
+    title-slide-attributes: 
+      data-background-color: "#FFF0F5"   
+    preview-links: auto  
+    link-external-newwindow: true
+    transition: convex
+    fontcolor: "#5D478B"
+    highlight-style: a11y
+    code-line-numbers: true
+    number-sections: false
+    slide-number: c/t  
+    incremental: false
+footer: |
+  Slides hechas con [Quarto](https://quarto.org/)
+---
+
+# Índice {background-color="#FFE4E1"}
+
+
+  1.  Introducción 
+
+
+  2.  Datos del trabajo
+
+
+  3.  Testimonios 
+
+
+  4.  Definiciones
+
+
+  5.  ¿Qué dicen los medios?
+
+
+  6.  Gráficos
+
+
+  7.  Conclusión
+
+
+::: column-margin
+
+<div style="position: absolute; top: 0; right: 0;">
+  <img src="./imagenes/imagen_01.png" style="width: 400px;">
+</div>
+
+:::
+
+-------------------
+
+## 1. Introducción {background-color="#FFE4E1"}
+
+* En el siguiente trabajo realizamos un análisis del panorama actual al que se enfrentan los jóvenes en España una vez finalizados sus estudios. 
+
+* Estudiamos la evolución de la población, la pobreza, la empleabilidad y tasa de paro, el precio de la vivienda, los salarios medios y el gasto medio para el grupo de jóvenes. 
+
+
+```{r}
+
+# Estos son los paquetes que utilizamos:
+
+#| eval: true
+library(rio)
+library(tidyverse)
+library(ggthemes)
+library(ggThemeAssist)
+library(dplyr)
+library(plotly)
+library(gganimate)
+library(gapminder)
+library(treemapify)
+library(treemap)
+library(patchwork)
+library(zoo)
+library(scales)
+library(vembedr)
+library(ggimage)
+library(countrycode)
+library(tidyr)
+library(gt)
+library(hrbrthemes)
+library(countrycode)
+library(ggimage)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(mapdata)
+library(maps)
+library(ggrepel)
+library(tmap)
+library(gridExtra)
+library(glue)
+library(sjPlot)
+library(devtools)
+library(gclus)
+library(corrplot)
+library(knitr)
+library(kableExtra)
+library(viridis)
+library(viridis)
+library(magick)
+
+# Cargamos todos los datos que utilizaremos a lo largo del trabajo:
+
+archivo_de_destino <- here::here("datos", "pob_mujeres.csv")
+df_pob_mujeres <- rio::import(archivo_de_destino)
+
+archivo_de_destino <- here::here("datos", "pob_hombres.csv")
+df_pob_hombres <- rio::import(archivo_de_destino)
+
+archivo_de_destino <- here::here("datos", "ratio_de_pobreza.csv")
+df_ratio_pobreza <- rio::import(archivo_de_destino)
+
+archivo_de_destino <- here::here("datos", "precio_vivienda.csv")
+df_precio_vivienda <- rio::import(archivo_de_destino)
+
+archivo_de_destino <- here::here("datos", "precio_vivienda.csv")
+df_tabla_precio <- rio::import(archivo_de_destino)
+
+archivo_de_destino <- here::here("datos", "tasa_paro.csv")
+df_tasa_paro <- rio::import(archivo_de_destino)
+
+archivo_de_destino <- here::here("datos", "tasa_paro_formacion.csv")
+df_paro_formacion <- rio::import(archivo_de_destino)
+
+archivo_de_destino <- here::here("datos", "tasa_paro_paises.csv")
+df_tasa_paro_paises <- rio::import(archivo_de_destino)
+
+archivo_de_destino <- here::here("datos", "salario_medio_grupo_edad.csv")
+df_salario_medio_edad <- rio::import(archivo_de_destino)
+
+archivo_de_destino <- here::here("datos", "salario_medio_nivel_formacion.csv")
+df_salario_medio_formacion <- rio::import(archivo_de_destino)
+
+archivo_de_destino <- here::here("datos", "employment_rate.csv")
+df_tasa_empleo <- rio::import(archivo_de_destino)
+
+archivo_de_destino <- here::here("datos", "gasto_medio.csv")
+df_gasto_medio <- rio::import(archivo_de_destino)
+
+# Modificamos los datos:
+
+# Población hombres y mujeres jóvenes
+df_pob_mujeres <- df_pob_mujeres %>%
+group_by(Year) %>%
+summarise(Total_Mujeres_16a25 = sum(Total))
+
+df_pob_hombres <- df_pob_hombres %>%
+  group_by(Year) %>%
+  summarise(Total_Hombres_16a25 = sum(Total))
+
+df_total_separada <- left_join(df_pob_mujeres, df_pob_hombres)
+
+# Riesgo de pobreza o exclusión social
+df_ratio_pobreza <- janitor::clean_names(df_ratio_pobreza)
+names(df_ratio_pobreza)
+
+df_ratio_pobreza <- df_ratio_pobreza %>% mutate(total = stringr::str_replace(total, "," , "." ))
+str(df)
+df_ratio_pobreza <- df_ratio_pobreza %>% mutate(total = as.numeric(total)) 
+
+# Precio de la vivienda 
+df_precio_vivienda <- janitor::clean_names(df_precio_vivienda)
+names(df_precio_vivienda)
+df_precio_vivienda <- df_precio_vivienda %>% mutate(total = stringr::str_replace(total, "," , "." ))
+df_precio_vivienda <- df_precio_vivienda %>% mutate(total = as.numeric(total)) 
+df_precio_vivienda <- df_precio_vivienda %>% 
+  filter(variacion == "Variación anual") %>%
+  tidyr:::separate.data.frame(., periodo, into = c("year", "trimestre"), sep = "T") %>%
+  tidyr::drop_na()
+df_precio_vivienda <- df_precio_vivienda %>%
+  group_by(year) %>%
+  summarise(media = mean(total)) %>%
+  ungroup()
+
+# Tabla precio de la vivienda
+df_tabla_precio <- janitor::clean_names(df_tabla_precio)
+names(df_tabla_precio)
+df_tabla_precio <- df_tabla_precio %>% mutate(total = stringr::str_replace(total, "," , "." ))
+df_tabla_precio <- df_tabla_precio %>% mutate(total = as.numeric(total)) 
+df_tabla_precio <- df_tabla_precio %>% 
+  tidyr:::separate.data.frame(., periodo, into = c("year", "trimestre"), sep = "T") %>%
+  tidyr::drop_na()
+df_tabla_precio <- df_tabla_precio %>%
+  filter(variacion == "Variación anual") %>%
+  group_by(year) %>%
+  summarise(media = mean(total)) %>%
+  arrange(desc(media)) %>%
+  head(4) %>%
+  ungroup()
+
+# Gasto medio 
+df_gasto_medio <- df_gasto_medio %>%
+  rename(grupos = "Grupos de gasto") %>%
+  select(grupos, Total)
+df_gasto_medio <- janitor::clean_names(df_gasto_medio)
+names(df_gasto_medio)
+df_gasto_medio <- df_gasto_medio %>% mutate(total = stringr::str_replace(total, "," , "." ))
+df_gasto_medio <- df_gasto_medio %>% mutate(total = as.numeric(total))
+df_gasto_medio <- separate(df_gasto_medio, grupos, into = c("codigo", "grupo"), sep = " ", extra = "merge", remove = FALSE)
+df_gasto_medio <- df_gasto_medio %>%
+  select(grupo, total)
+
+# Tasa de empleo
+df_tasa_empleo <- df_tasa_empleo %>%
+  rename(Pais = LOCATION, Año = TIME, Valor = Value) %>%
+  select(Pais, Año, Valor) %>%
+  drop_na() %>%
+  mutate(iso2 = countrycode(sourcevar = Pais, 
+                            origin = "iso3c", 
+                            destination = "iso2c", warn = FALSE))
+# Tasa de paro
+df_tasa_paro$total <- sub(",", ".", df_tasa_paro$total)
+df_tasa_paro$total <- as.numeric(df_tasa_paro$total)
+df_tasa_paro$periodo <- as.yearqtr(df_tasa_paro$periodo, format = "%YT%q")
+
+# Tasa de paro juvenil por nivel formativo
+df_paro_formacion <- janitor::clean_names(df_paro_formacion)
+names(df_paro_formacion)
+
+df_paro_formacion <- df_paro_formacion %>% mutate(total = stringr::str_replace(total, "," , "." ))
+str(df)
+df_paro_formacion <- df_paro_formacion %>% mutate(total = as.numeric(total)) 
+
+```
+
+
+-------------------
+
+## 2. Datos del trabajo {background-color="#FFE4E1"}
+
+Se obtuvieron principalmente de 3 bases de datos
+
+
+```{r, eval = TRUE, echo = FALSE, out.width="20%", fig.pos= "right"}
+
+knitr::include_graphics(here::here("imagenes", "logo.png"))
+
+```
+
+```{r, eval = TRUE, echo = FALSE, out.width="20%", fig.pos= "left"}
+
+knitr::include_graphics(here::here("imagenes", "logo_ocde.png"))
+
+```
+
+```{r, eval = TRUE, echo = FALSE, out.width="20%", fig.pos= "center"}
+
+knitr::include_graphics(here::here("imagenes", "logo_ine.png"))
+
+```
+
+-------------------
+
+## EMPEZAMOS!!
+
+```{r}
+#| echo: false
+foto1 <- image_read("./imagenes/facultad.jpg")
+foto2 <- image_read("./imagenes/examenes.jpg")
+foto3 <- image_read("./imagenes/graduaciones.jpg")
+foto4 <- image_read("./imagenes/trabajo.jpg")
+
+etapas_jovenes <- c(foto1, foto2, foto3, foto4)
+
+image_animate(image_scale(etapas_jovenes, "700"), fps = 0.5)
+```
+
+-------------------
+
+## 3. Testimonios de algunos jóvenes españoles
+
+Un video que refleja la situación de algunos jóvenes en España
+
+```{r, echo = FALSE, out.width = "1500px", out.height = "840px"}
+embed_url("https://www.youtube.com/watch?v=Id-QSZZA6i0")
+```
+
+-------------------
+
+## 4. Definiciones {style="background-color: #FFE4E1}
+
+
+* **POBLACIÓN JOVEN:** Utilizamos la Población en Edad de Trabajar (PET), de 16 a 24 años. 
+
+
+* **TASA DE PARO JÓVENES:** Utilizamos el desempleo juvenil, aquel que afecta a personas de entre 16 y 24 años (ambos inclusive). 
+
+
+* **PRECIO DE LA VIVIENDA:** Utilizamos la variación anual del coste de la vivienda (incluyendo vivienda nueva y de segunda mano). 
+
+
+* **SALARIO MEDIO JÓVENES:** Se define como el cociente entre los sueldos y salarios pagados a los remunerados (de entre 16 y 24 años) entre el número medio de asalariados en el año, expresado en euros. 
+
+```{r, eval=TRUE, echo=FALSE, out.width="15%", fig.pos="right"}
+
+knitr::include_graphics( here :: here ("imagenes", "foto.jpg"))
+
+```
+
+-------------------
+
+## 5. ¿Qué dicen los medios? {style="background-color: #FFE4E1}
+
+No importa la forma en que lo busques, todos los medios tienen una visión pesimista. 
+Dejamos tres ejemplos: 
+
+> *"Los españoles están preocupados por tener tranquilidad, estabilidad económica y un hogar propio"* Julia Wolny
+
+> *"la edad media de emancipación de los jóvenes españoles alcanza ya los 30 años, tres años después que la media europea"* Informe Age of young people leaving their parental household (Eurostat)
+
+> *"Los jóvenes son la gran asignatura pendiente desde hace décadas para los gobiernos de diferentes tendencias e ideologías"* Mariano Guindal
+
+-------------------
+
+## 6. Gráficos
+
+Vamos a realizar distintos gráficos para mostrar lo preocupante que es el panorama actual para los jóvenes.
+
+```{r, eval=TRUE, echo=FALSE, out.width="15%", fig.pos="right"}
+
+knitr::include_graphics( here :: here ("imagenes", "fotojoven.jpg"))
+
+```
+
+-------------------
+
+### 6.1 Evolución de la población joven dividida por sexos (2007-2022) {background-color="#FFE4E1"}
+
+```{r, echo = FALSE,message = FALSE, warning = FALSE}
+
+p1 <- ggplot(df_total_separada, aes(x = Year, y = Total_Mujeres_16a25, shape = "Mujeres")) + 
+  geom_line(color = "pink1") + 
+  geom_point(color = "hotpink") + 
+  labs(title = "Evolución de la población de mujeres jóvenes (Período 2007-2022)", 
+       shape = NULL) +
+  theme_fivethirtyeight() + 
+  scale_shape_manual(values = c("Mujeres" = 5)) # Asignamos la forma de diamante (5) a la categoría "Mujeres" 
+
+p2 <- ggplot(df_total_separada, aes(x = Year, y = Total_Hombres_16a25, shape = "Hombres")) + 
+  geom_line(color = "lightblue") + 
+  geom_point(color = "blue") +
+  labs(title = "Evolución de la población de hombres jóvenes (Período 2007-2022)",
+       shape = NULL) + 
+  theme_fivethirtyeight() + 
+  scale_shape_manual(values = c("Hombres" = 1)) # Asignamos la forma de círculo (1) a la categoría "Hombres" 
+
+p_combined <- subplot(p1, p2) %>% 
+  layout(title = "Evolución de la población de hombres y mujeres jóvenes (Período 2007-2022)")
+
+ggplotly(p_combined)
+
+```
+
+-------------------
+
+### 6.1 Evolución de la población joven dividida por sexos (2007-2022) {background-color="#FFE4E1"}
+
+- Mismo patrón: **considerable disminución de los jóvenes**.
+- **2007**: 2276.475 mujeres y 2397.293 hombres (máx.).
+- **CAUSAS**.
+- Envejecimiento de la población
+- ¿Sostenibilidad del sistema de pensiones?
+- La presión del gasto es creciente e intensa y el número de población joven cada vez es menor; tasa de sustitución/de reemplazo será cada vez más baja y un gran problema que exige dar una respuesta de forma urgente.  
+
+-------------------
+
+### 6.2 Ratio de pobreza (en %) de la población joven {background-color="#FFE4E1"}
+
+```{r, echo = FALSE,message = FALSE, warning = FALSE}
+
+df_ratio_pobreza$periodo <- as.numeric(as.character(df_ratio_pobreza$periodo))
+
+df_ratio_pobreza$icono <- ifelse(df_ratio_pobreza$sexo == "Mujeres", "mujer.png", "hombre.png")
+
+p3 <- ggplot(df_ratio_pobreza, aes(x = periodo, y = total, color = sexo, linetype = sexo)) + 
+  geom_line(linewidth = 1) +
+  geom_image(aes(image = icono), size = 0.05) + 
+  labs(title = "Riesgo de Pobreza en Jóvenes por Género",
+       subtitle = "(Período 2008-2021)", x = "Años", y = "Riesgo de Pobreza en %") +
+  scale_color_manual(values = c("Mujeres" = "hotpink", "Hombres" = "lightblue")) +
+  scale_linetype_manual(values = c("Mujeres" = "solid", "Hombres" = "solid")) + 
+  theme_minimal() +
+  theme(legend.position = "top", legend.title = element_blank()) +
+  scale_x_continuous(breaks = unique(df_ratio_pobreza$periodo), labels = unique(df_ratio_pobreza$periodo)) +
+  labs(caption = "Fuente: elaboración propia a partir de datos del INE") +
+  theme(legend.key = element_rect(fill = "white"), legend.background = element_rect(fill = "aliceblue")) + 
+  theme(panel.grid.major = element_line(colour = "white")) + 
+  transition_reveal(periodo)
+
+p3
+
+```
+
+-------------------
+
+### 6.2 Ratio de pobreza (en %) de la población joven {background-color="#FFE4E1"}
+
+- **Prolongación de la etapa de juventud**. Como en este caso: % en los jóvenes de entre 16 y 29 años.
+- Tendencia **creciente** desde 2008 siendo en ese año, 21 % (hombres) y 24,7 % (mujeres).
+- Máx. en 2015 y 2016: 39,1 % y 38,1 %.
+- Generación de **más desigualdad y precariedad laboral e inestabilidad** que hace que el riesgo de pobreza sea mayor.
+- Las estructuras de apoyo a los jóvenes son necesarias.
+
+-------------------
+
+### 6.3 Precio de la vivienda para el período 2007-2023 {background-color="#FFE4E1"}
+
+```{r, echo = FALSE,message = FALSE, warning = FALSE}
+
+p4 <- ggplot(df_precio_vivienda, aes(x = as.factor(year), y = media)) +
+  geom_bar(stat = "identity", fill = "slateblue1", color = "black") +
+  labs(x = "Año",
+       y = "Variación anual") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  annotate("rect", xmin = 0.4, xmax = 1.7,ymin = -1, ymax = Inf, alpha = 0.2, fill = "palevioletred1")  +
+  annotate(geom = "text", x = 4.2, y = 10, label = "Burbuja inmobiliaria 2007", size = 4) +
+  theme(plot.caption = element_text(size = 12,
+    colour = "black"), panel.grid.major = element_line(linetype = "blank"),
+    panel.grid.minor = element_line(linetype = "blank"),
+    axis.title = element_text(vjust = 0),
+    axis.text = element_text(size = 9, hjust = 0),
+    axis.text.x = element_text(size = 9,
+        vjust = 0.75, angle = 10), axis.text.y = element_text(size = 9),
+    plot.title = element_text(size = 15,
+        face = "bold.italic"), panel.background = element_rect(fill = "aliceblue",
+        linetype = "solid"), plot.background = element_rect(colour = NA)) +labs(caption = "Fuente: elaboración propia a partir de los datos del INE")
+
+p4
+
+```
+
+-------------------
+
+### 6.3 Precio de la vivienda {background-color="#FFE4E1"}
+
+- 2007: **burbuja inmobiliaria**: mayor variación anual positiva de la historia. 
+- 2008: **crisis financiera**: brusca caída en el precio de la vivienda. 
+- En los años siguientes, el apoyo del gobierno y las medidas de estabilización económica aportaron a la recuperación de forma gradual, por lo que el precio continuo disminuyendo año a año. 
+- 2015: la variación anual en el precio se mantuvo positiva e incrementando de forma sostenida año a año. 
+- 2020: **pandemia de la Covid-19**: generó incertidumbre en el sector inmobiliario, pero sin embargo, estimuló de cierto modo la demanda de viviendas más espaciosas por las medidas de confinamiento. 
+- Actualidad: preocupación por la **posibilidad de que se produzca una nueva burbuja**.   
+
+```{r, echo = FALSE,message = FALSE, warning = FALSE}
+
+#| echo: false 
+
+df_tabla_precio$media <- round(df_tabla_precio$media, 2)
+df_tabla_precio %>%
+  kable(format = "html", 
+        caption = "Top 4 variación anual",
+        align = c("c", "r")) %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1, bold = TRUE) %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#708090") %>%
+  row_spec(which(df_tabla_precio$media > 0, arr.ind = TRUE), background = "#87CEFA") %>%
+  row_spec(which(df_tabla_precio$media < 0, arr.ind = TRUE), background = "#8DB6CD") %>%
+  column_spec(2, color = "white", background = "#5BC0DE")
+
+```
+
+-------------------
+
+### 6.4 Evolución de la tasa de empleo juvenil en la UE 2018-2022 {background-color="#FFE4E1"}
+
+```{r, echo = FALSE,message = FALSE, warning = FALSE}
+
+#| echo: false
+aa <- df_tasa_empleo %>%
+  ggplot(aes(x = Año, y = Valor)) + 
+  labs(x = "Año",
+       y = "Tasa de empleo juvenil",
+       color = "Países") + geom_flag(aes(image = iso2)) +
+  geom_line(aes(color = Pais), size= 1.5) +
+  theme(plot.title = element_text(size = 15, face = "bold",
+                                  hjust = 0.5),
+        axis.title.x = element_text(size = 15, hjust = 1,
+                                    vjust = 0),
+        axis.title.y = element_text(size = 15, hjust = 1, vjust = 1),
+        legend.title = element_text(face = "bold")) +
+  transition_reveal(Año) + 
+  view_follow() + theme_bw() + theme(panel.grid.major = element_line(colour = "azure3",
+                                                                     linetype = "dashed"), panel.background = element_rect(fill = "honeydew")) + theme(panel.grid.minor = element_line(linetype = "blank"),
+  axis.text = element_text(family = "serif",
+  size = 10, colour = "snow4"))
+
+animate(aa, width = 800, height = 500)
+
+```
+
+-------------------
+
+### 6.5 Evolución de la tasa de desempleo juvenil en España {background-color="#FFE4E1"}
+
+```{r, echo = FALSE,message = FALSE, warning = FALSE}
+
+df_tasa_paro_jovenes <- df_tasa_paro %>%
+  filter(edad == "Menores de 25 años") %>%
+  filter(CCAA == "Total Nacional") %>%
+  filter(sexo == "Ambos sexos")
+
+df_tasa_paro_hombres <- df_tasa_paro %>%
+  filter(edad == "Menores de 25 años") %>%
+  filter(CCAA == "Total Nacional") %>%
+  filter(sexo == "Hombres")
+
+df_tasa_paro_mujeres <- df_tasa_paro %>%
+  filter(edad == "Menores de 25 años") %>%
+  filter(CCAA == "Total Nacional") %>%
+  filter(sexo == "Mujeres")
+
+df_tasa_paro_2023 <- df_tasa_paro %>%
+  filter(edad == "Menores de 25 años") %>%
+  filter(sexo == "Ambos sexos") %>%
+  filter(periodo == "2023 Q1")
+
+total_nacional_2023 <- df_tasa_paro_2023$total[df_tasa_paro_2023$CCAA == "Total Nacional"]
+
+p5 <- ggplot(df_tasa_paro_jovenes, aes(x = periodo, y = total, color = "Ambos Sexos")) +
+  geom_line(size = 0.75) +
+  labs(title = "Evolución de la tasa de paro juvenil (menores de 25 años)",
+       subtitle = "España, Período 2002-2023",
+       x = "Año",
+       y = "Tasa de paro") +
+  theme_classic() +
+  scale_x_yearqtr(format = "%Y", n = 10, expand = c(0.02, 0.02)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  geom_line(data = df_tasa_paro_hombres, aes(x = periodo, y = total, color = "Hombres"), size = 0.9) +
+  geom_line(data = df_tasa_paro_mujeres, aes(x = periodo, y = total, color = "Mujeres"), size = 0.9) +
+  scale_color_manual(values = c("Ambos Sexos" = "sienna", "Hombres" = "green4", "Mujeres" = "purple"), 
+  labels = c("Ambos Sexos", "Hombres", "Mujeres")) +
+  labs(color = "Sexo", caption = "Fuente: elaboración propia a partir de datos del INE") +
+  theme(legend.position = "top")
+
+p5 + theme(plot.subtitle = element_text(size = 12,
+    face = "italic"), plot.caption = element_text(size = 10),
+    panel.grid.major = element_line(linetype = "blank"),
+    axis.title = element_text(size = 12,
+        face = "bold"), axis.text = element_text(size = 10),
+    plot.title = element_text(size = 15,
+        face = "bold.italic"), legend.text = element_text(size = 10),
+    legend.title = element_text(size = 11,
+        face = "bold"), plot.background = element_rect(fill = "lavender"),
+    legend.key = element_rect(fill = "white"),
+    legend.background = element_rect(fill = "white"),
+    legend.direction = "horizontal") +
+    annotate("rect", xmin = 2012, xmax = 2015,ymin = -Inf, ymax = Inf, alpha = 0.2, fill = "palevioletred1") +
+    annotate("rect", xmin = 2019, xmax = 2022,ymin = -Inf, ymax = Inf, alpha = 0.2, fill = "palevioletred1") 
+
+```
+
+-------------------
+
+## 6.6 Tasa de desempleo juvenil por CCAA en 2023 {background-color="#FFE4E1"}
+
+```{r, echo = FALSE,message = FALSE, warning = FALSE}
+
+p2 <- ggplot(df_tasa_paro_2023, aes(x = CCAA, y = total, fill = CCAA)) +
+  geom_bar(stat = "identity") +
+  geom_hline(yintercept = total_nacional_2023, linetype = "dashed", color = "red", size = 1) +
+  labs(title = "Tasa de paro para menores de 25 años por CCAA",
+       subtitle = "Primer trimestre de 2023",
+       x = "Comunidad autónoma",
+       y = "Tasa de paro",
+       caption = "Fuente: elaboración propia a partir de datos del INE") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(legend.position = "none")
+
+p2 + theme(plot.subtitle = element_text(size = 12,
+           face = "italic"), plot.caption = element_text(size = 10),
+           panel.grid.major = element_line(linetype = "blank"),
+           axis.title = element_text(size = 12,
+                face = "bold"), axis.text = element_text(size = 10),
+           plot.title = element_text(size = 15,
+                face = "bold.italic"), legend.text = element_text(size = 10),
+           legend.title = element_text(size = 11,
+                face = "bold"), plot.background = element_rect(fill = "lavender"),
+           legend.key = element_rect(fill = "white"),
+           legend.background = element_rect(fill = "white"))
+
+```
+
+-------------------
+
+## 6.7 Tasa de desempleo juvenil por CCAA en 2023 {background-color="#FFE4E1"}
+
+```{r, echo = FALSE,message = FALSE, warning = FALSE}
+
+df_geo <- pjpv.curso.R.2022::LAU2_prov_2020_canarias
+df_geo_ccaa <- df_geo %>% select(ine_ccaa, ine_ccaa.n)
+
+df_tasa_paro_mapa <- df_tasa_paro %>%
+  filter(edad == "Menores de 25 años") %>%
+  filter(sexo == "Ambos sexos") %>%
+  filter(periodo == "2023 Q1") %>%
+  tidyr:::separate.data.frame(., CCAA, into = c("ine_ccaa", "CCAA"), sep = " ")
+
+df_mapa <- left_join(df_geo_ccaa, df_tasa_paro_mapa, by = c("ine_ccaa" = "ine_ccaa"))
+
+p <- ggplot() + 
+  geom_sf(data = df_mapa, 
+          aes(geometry = geometry, fill = total), 
+          color = "white", size = 0.09) +
+  geom_sf() + scale_fill_viridis(option="magma", direction = -1) +
+  labs(title = "Tasa de paro juvenil (menores de 25 años) por CCAA",
+       subtitle = "Primer trimestre de 2023",
+       caption = "Fuente: elaboración propia a partir de datos del INE",
+       fill = "Tasa de paro") +
+  theme(plot.title = element_text
+      (family = "Times", size = 16, hjust = 0.5, color = "black", face = "bold"),
+      legend.title = element_text(size = 10, face = "bold", color = "black", hjust = 0.5))
+p
+
+```
+
+-------------------
+
+### 6.8 Comparación con otros países europeos {background-color="#FFE4E1"}
+
+```{r, echo = FALSE,message = FALSE, warning = FALSE}
+
+df_tasa_paro_paises$desempleo <- sub(",", ".", df_tasa_paro_paises$desempleo)
+df_tasa_paro_paises$desempleo <- as.numeric(df_tasa_paro_paises$desempleo)
+
+df_tabla_paises <- df_tasa_paro_paises %>%
+  select(pais, año, desempleo) %>%
+  arrange(desc(desempleo))
+
+DT::datatable(df_tabla_paises,
+              caption = "Tasa de desempleo juvenil (menores de 25 años) por países europeos",
+              options = list(
+                columnDefs = list(
+                  list(className = 'dt-center', 
+                       targets = 0:3)),
+                pageLength = 23))
+
+```
+
+-------------------
+
+### 6.9 Tasa de paro juvenil (%) por nivel de formación/educativo para 2022 {background-color="#FFE4E1"}
+
+```{r, echo = FALSE,message = FALSE, warning = FALSE}
+
+p6 <- ggplot(df_paro_formacion, aes(x = "", y = total, fill = reorder(nivel_de_formacion_alcanzado, -total))) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar(theta = "y") +
+  theme_void() +
+  scale_fill_manual(values = c("orchid1", "olivedrab1", "green3", "orange2", "bisque1", "lightblue"), 
+                    name = "Nivel Educativo alcanzado") +
+  geom_text(aes(label = paste(total, "%")), position = position_stack(vjust = 0.5), color = "black", size = 3) +
+  labs(title = "Tasa de paro según distribución de Niveles Educativos ",
+       subtitle = "(20-24 años, 2022) % por nivel educativo", 
+       caption = "Fuente: Elaboración propia a partir de datos del INE") 
+
+p6
+
+```
+
+- Conforme **aumenta la educación obtenida, la tasa de paro disminuye** pero siguen siendo % de tasa de paro **bastante altos**
+
+-------------------
+
+### 6.10 Gasto medio por joven 2022 {background-color="#FFE4E1"}
+
+```{r, echo = FALSE,message = FALSE, warning = FALSE}
+
+p9 <- treemap(df_gasto_medio,
+              index="grupo",
+              vSize="total",
+              type="index",
+              border.col=c("#CDC9C9"), 
+              palette="Dark2",
+              fontsize.labels = 9,
+              title= "Distribución del gasto",
+              width = 800, 
+              height = 500)
+
+```
+
+- **Vivienda, agua, electricidad, gas y otros combustibles** siendo este de 3988.46 €
+- **Transporte** siendo de 2007.13 € 
+- **Restaurantes y hoteles** siendo de 1583.66 €
+
+-------------------
+
+### 6.11 Salario medio según el grupo de edad {background-color="#FFE4E1"}
+
+```{r , echo = FALSE,message = FALSE, warning = FALSE}
+#| echo: false
+df_sin_duplicados <- distinct(df_salario_medio_edad)
+
+df_largo <- df_sin_duplicados %>%
+  select(grupo_edad, periodo, total) %>%
+  group_by(periodo) %>%
+  ungroup() 
+
+df_corto <- df_largo %>%
+  tidyr::pivot_wider(values_from = total, names_from = periodo)
+
+```
+
+```{r}
+#| echo: false
+DT::datatable(df_corto, filter = 'top', options = list(pageLength = 2, autoWidth = TRUE))
+```
+
+-------------------
+
+### 6.12 Salario medio según el nivel de estudios {background-color="#FFE4E1"}
+
+- Cuanto mayor es la educación, mayor es el salario medio
+
+```{r, echo = FALSE,message = FALSE, warning = FALSE, out.width = "1500px", out.height = "600px"}
+#| echo: false
+archivo_de_destino <- here::here("datos", "salario_medio_nivel_formacion.csv")
+df_tabla_salario<- rio::import(archivo_de_destino)
+
+df_tabla_universidad <- df_tabla_salario %>%
+  select(formacion, periodo, total) %>%
+  group_by(periodo) %>%
+  filter(formacion == "Educación superior") %>%
+  slice(1) %>%
+  ungroup() %>%
+  rename(Formación = formacion)
+
+df_tabla_instituto <- df_tabla_salario %>%
+  select(formacion, periodo, total) %>%
+  group_by(periodo) %>%
+  filter(formacion == "Segunda etapa de educación secundaria") %>%
+  slice(1) %>%
+  ungroup() %>%
+  rename(Formación = formacion)
+
+df_tabla_combinado <- bind_rows(df_tabla_universidad, df_tabla_instituto)
+
+df_tabla_estudios <- df_tabla_combinado %>%
+  tidyr::pivot_wider(values_from = total, names_from = periodo)
+
+Escudos <- c("./imagenes/logo_uv.jpg", 
+                 "./imagenes/logo_sequeros.jpg")
+
+df_img <- cbind(df_tabla_estudios, Escudos)  
+tabla <- df_img %>% gt() 
+
+tabla <- tabla %>%
+  tab_header(title = md("**Salarios medios según el nivel de formación**")) %>%
+  tab_options(heading.background.color = "#FFD700") %>%
+  tab_source_note("Fuente: datos obtenidos del INE") %>%
+  tab_style(style = cell_fill(color = "lightblue"),
+                   locations = cells_body(columns = "2022")) %>%
+  tab_style(style = cell_text(color = "red"),
+            locations = cells_body(columns = "2022")) %>%
+  tab_options(heading.title.font.size = 15,  column_labels.font.weight =  "bold") %>%
+  gt::text_transform(locations = cells_body(columns = c(Escudos)), 
+                     fn = function(x){gt::local_image(x, height = 80)}) %>% 
+  cols_align (align = "center")
+
+tabla
+
+```
+
+-------------------
+
+## 7. Conclusión
+
+Concluimos que la situación es crítica para los jóvenes y que la posibilidad de independizarse de sus respectivas familias es cada vez más díficil.
+
+- Aumento de precios y de coste de vida 
+
+- Reducido poder adquisitivo 
+
+- Altas tasas de paro juvenil 
+
+- Pocas oportunidades para adquirir experiencia 
+
+En definitiva, necesidad de estar continuamente formándonos para llegar a consiguir salir de la precariedad. 
+
+-------------------
+
+
+```{r, eval=TRUE, echo=FALSE, out.width="15%", fig.pos="right"}
+
+knitr::include_graphics( here :: here ("./imagenes/gracias.gif"))
+
+```
+
+
